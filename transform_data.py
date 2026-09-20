@@ -1,6 +1,8 @@
 import os
 import pandas as pd
+from prefect import flow, task
 
+@task
 def extract():
     "Read the staged files from Jan-March"
     jan_df = pd.read_parquet("data/staging/green_tripdata_2025-01.parquet")
@@ -13,7 +15,7 @@ def extract():
 
     return df
 
-
+@task
 def transform(df):
 
     df = df[
@@ -34,7 +36,7 @@ def transform(df):
 
     return daily_revenue
 
-
+@task
 def load(daily_revenue):
     #save the output to csv file
     os.makedirs("data/output", exist_ok=True)
@@ -45,7 +47,7 @@ def load(daily_revenue):
 
     print("Daily revenue saved to data/output/daily_revenue.csv")
 
-
+@flow
 def main():
     df = extract()
     daily_revenue = transform(df)
